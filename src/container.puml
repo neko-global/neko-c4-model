@@ -1,0 +1,58 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+title Container Diagram for Neko Wallet Application
+
+Person(customer, "Neko Wallet User", "Users using Neko Wallet application (mobile devices)")
+Person(devops, "DevOps", "Responsible for building and maintaining infrastructure")
+Person(admin, "Administrator", "Admins of Neko Wallet application (web users)")
+System_Ext(notification, "OneSignal", "Push notification service for web and mobile devices")
+System_Ext(cmc, "CoinMarketCap", "Market cap and price tracking platform for cryptocurrencies")
+System_Ext(partners, "Partner", "Partners of Neko Wallet (eg: MagicEden) that support NFT related actions: send, send NFT, list, unlist,...")
+System_Ext(infra, "Infrastructure", "Entity infrastructure that implements Neko Wallet")
+System_Ext(blockchain, "Blockchain", "Blockchain platforms such as SOL, BSC, ETH,...")
+System_Ext(marketplace, "Marketplace", "Marketplaces that have partnership with NekoWallet: MagicEden,...")
+System_Boundary(system, "Neko Wallet System") {
+    System_Boundary(frontend, "Neko Wallet FE") {
+        Container(mobile, "Mobile App", "JavaScript: React Native", "Provides accessibility to application's major services to general users")
+        Container(web, "Web App", "JavaScript: ReactJS", "Provides management tools for admins of Neko Wallet")
+    }
+    System_Boundary(backend, "Neko Wallet BE") {
+        Container(api, "API Application", "Typescript: NodeJS, Express", "Provides functionality via RESTful APIs")
+        Container(priceListener, "Price Listener", "Typescript: NodeJS", "Listens and retrieves cryptocurrencies data from CoinMarketCap")
+        Container(scheduler, "Job Scheduler", "Typescript: NodeJS", "schedules, crawls and uploads data in Neko Wallet system")
+        Container(queue, "Queue", "JavaScript: NodeJS", "queues jobs and tasks pushed into Redis store")
+    }
+    Container(library, "Blockchain Library", "TypeScript", "provides functionality and communicates with Blockchain platforms")
+    ContainerDb(cryptoDatabase, "Crypto Database", "Relational DBMS: PostgreSQL", "Stores general information and data in Neko Wallet system")
+    ContainerDb(priceDatabase, "Price Database", "Relational DBMS: PostgreSQL", "Stores price related information and data in Neko Wallet system")
+    Rel(backend, cryptoDatabase, "reads from/writes to", "ORM: ObjectionJS")
+    Rel(backend, priceDatabase, "reads from/writes to", "ORM: ObjectionJS")
+    Rel(frontend, api, "makes API calls to", "JSON/HTTPS")
+    Rel_U(priceListener, cmc, "retrieves", "socket")
+    SystemDb_Ext(redis, "Redis Store", "Message queue service")
+    SystemDb_Ext(s3, "S3", "S3 services for storing images and sending emails")
+    Rel(api, redis, "pushes messages")
+    Rel(queue, redis, "retrieves jobs")
+    Rel(scheduler, library, "calls functions")
+    Rel_U(scheduler, cmc, "makes API calls to", "api")
+    Rel(frontend, library, "calls functions")
+    Rel(backend, library, "calls functions")
+    Rel(library, blockchain, "retrieves and executes", "rpc")
+    Rel(api, s3, "requests to send emails")
+    Rel(scheduler, s3, "uploads images")
+    Rel(s3, customer, "sends emails")
+    Rel(api, marketplace, "makes API calls to")
+}
+Rel(customer, mobile, "uses")
+Rel(admin, web, "uses")
+
+Rel(devops, infra, "configures")
+Rel(infra, system, "hosts")
+Rel(queue, notification, "sends messages", "api")
+Rel(api, notification, "sends messages", "api")
+Rel(notification, customer, "send notification")
+Rel_D(api, partners, "performs actions", "api")
+Lay_D(backend, library)
+Lay_D(frontend, library)
+@enduml

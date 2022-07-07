@@ -1,0 +1,32 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Queue component
+Person(customer, "Neko Wallet User", "Users using Neko Wallet application (mobile devices)")
+System_Boundary(system, "Neko Wallet System") {
+    ComponentDb(cryptoDB, "CryptoDatabase", "PostgreSQL Database", "Cryptocurrency related database")
+    ComponentDb(histDB, "HistoricalPriceDatabase", "PostgreSQL Database", "Historical price related database")
+    SystemDb_Ext(redis, "Redis Store", "Message queue service")
+    Component(sync, "SyncQueue", "Queue")
+    Component(wait, "WaitQueue", "Queue")
+    Component(cryptoDBRepo, "CryptoDBRepository", "Retrieves information from cryptocurrency database")
+    Component(histDBRepo, "HistoricalPriceDBRepository", "Retrieves information from historical price database")
+    Container(library, "Blockchain Library", "TypeScript", "provides functionality and communicates with Blockchain platforms")
+}
+System_Ext(blockchain, "Blockchain", "Blockchain platforms such as SOL, BSC, ETH,...")
+System_Ext(notification, "OneSignal", "Push notification service for web and mobile devices")
+Rel_D(sync, redis, "retrieves transactions")
+Rel_U(wait, redis, "retrieves transactions")
+Rel_R(sync, cryptoDBRepo, "uses")
+Rel_R(wait, cryptoDBRepo, "uses")
+Rel_L(sync, histDBRepo, "uses")
+Rel_L(wait, histDBRepo, "uses")
+Rel(sync, library, "calls functions")
+Rel(wait, library, "calls functions")
+Rel(sync, notification, "reads/writes", "ORM: ObjectionJS")
+Rel(wait, notification, "sends messages", "API")
+Rel(cryptoDBRepo, cryptoDB, "sends messages", "API")
+Rel(histDBRepo, histDB, "reads/writes", "ORM: ObjectionJS")
+Rel(library, blockchain, "retrieves and executes", "rpc")
+Rel(notification, customer, "notifies")
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
+
+title System Context Diagram for Neko Wallet Application
+
+Person(customer, "Neko Wallet User", "Users using Neko Wallet application (mobile devices)")
+Person(admin, "Administrator", "Admins of Neko Wallet application (web users)")
+Person(devops, "DevOps", "Responsible for building and maintaining infrastructure")
+System_Ext(infra, "Infrastructure", "Entity infrastructure that implements Neko Wallet")
+Rel(devops, infra, "configures")
+System(system, "Neko Wallet System", "Multi-chain wallet application for gamers")
+Rel(infra, system, "hosts")
+Rel(admin, system, "manages")
+Rel(customer, system, "uses")
+System_Ext(blockchain, "Blockchain", "Blockchain platforms such as SOL, BSC, ETH,...")
+Rel(system, blockchain, "retrieves and executes", "rpc")
+Rel(blockchain, system, "return results", "rpc")
+System_Ext(notification, "OneSignal", "Push notification service for web and mobile devices")
+Rel(system, notification, "sends messages", "api")
+Rel(notification, customer, "send notification")
+System_Ext(cmc, "CoinMarketCap", "Market cap and price tracking platform for cryptocurrencies")
+Rel(system, cmc, "retrieves", "socket")
+Rel(cmc, system, "return results", "socket")
+System_Ext(partners, "Partner", "Partners of Neko Wallet (eg: MagicEden) that support NFT related actions: send, send NFT, list, unlist,...")
+Rel(system, partners, "performs actions", "api")
+Rel(partners, system, "return results", "api")
+
+
+@enduml

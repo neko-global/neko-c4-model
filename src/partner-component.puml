@@ -1,0 +1,43 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Partner component
+Person(customer, "Neko Wallet User", "Users using Neko Wallet application (mobile devices)")
+Person(admin, "Administrator", "Admins of Neko Wallet application (web users)")
+System_Ext(notification, "OneSignal", "Push notification service for web and mobile devices")
+System_Boundary(system, "Neko Wallet System") {
+    System_Boundary(frontend, "Neko Wallet FE") {
+        Container(mobile, "Mobile App", "JavaScript: React Native", "Provides accessibility to application's major services to general users")
+        Container(web, "Web App", "JavaScript: ReactJS", "Provides management tools for admins of Neko Wallet")
+    }
+    Rel(customer, mobile, "uses")
+    Boundary(api, "API Application", "Typescript: NodeJS, Express") {
+        Component(partnerController, "PartnerController", "Controller", "Receives queries to retrieve partner information")
+        Component(partnerService, "PartnerService", "Service", "Receives queries' params, manipulate data retrieved from partner APIs")
+        Component(partnerValidator, "PartnerValidator", "Validator", "Validate queries params passed into partner APIs")
+        Component(partnerRepo, "PartnerRepository", "Repository", "Retrieves partner information from cryptocurrency database")
+
+        Component(partnerTransactionController, "PartnerTransactionController", "Controller", "Receives queries to retrieve partner transaction information")
+        Component(partnerTransactionService, "PartnerTransactionService", "Service", "Receives queries' params, manipulate data retrieved from partner APIs")
+        Component(partnerTransactionValidator, "PartnerTransactionValidator", "Validator", "Validate queries params passed into partner APIs")
+        Component(partnerTransactionRepo, "PartnerTransactionRepository", "Repository", "Retrieves partner information from cryptocurrency database")
+        Component(authenMiddleware, "AuthenticationMiddleware", "Middleware", "Validate access token passed along with requests to feedback controller")
+    }
+    ComponentDb(cryptoDB, "CryptoDatabase", "PostgreSQL Database", "Cryptocurrency related database")
+}
+System_Ext(partners, "Partner", "Partners of Neko Wallet (eg: MagicEden) that support NFT related actions: send, send NFT, list, unlist,...")
+Rel(frontend, api, "makes API calls", "JSON/HTTPS")
+Rel_R(partnerController, partnerService, "uses")
+Rel_U(partnerController, authenMiddleware, "uses")
+Rel_U(partnerController, partnerValidator, "uses")
+Rel_R(partnerService, partnerRepo, "uses")
+Rel_D(partnerRepo, cryptoDB, "reads/writes", "ORM: ObjectionJS")
+Rel_L(partners, partnerTransactionController, "makes API calls", "JSON/HTTPS")
+Rel_L(partnerTransactionController, partnerTransactionService, "uses")
+Rel_U(partnerTransactionController, partnerTransactionValidator, "uses")
+Rel_D(partnerTransactionService, partnerTransactionRepo, "uses")
+Rel_D(partnerTransactionRepo, cryptoDB, "reads/writes", "ORM: ObjectionJS")
+Rel(partnerTransactionService, notification, "sends messages", "api")
+Rel_R(notification, customer, "send notification")
+Rel(admin, web, "uses")
+@enduml

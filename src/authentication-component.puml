@@ -1,0 +1,22 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Authentication component
+Person(customer, "Neko Wallet User", "Users using Neko Wallet application (mobile devices)")
+System_Boundary(system, "Neko Wallet System") {
+    Container(mobile, "Mobile App", "JavaScript: React Native", "Provides accessibility to application's major services to general users")
+    Rel_R(customer, mobile, "uses")
+    Boundary(api, "API Application", "Typescript: NodeJS, Express") {
+        Component(authenController, "AuthenticationController", "Controller", "Receives GET queries to retrieve market and cryptocurrency information")
+        Component(authenService, "CryptocurrencyService", "Service", "Receives queries' params, manipulate data retrieved from DB")
+        Component(authenValidator, "AuthenticationValidator", "Validator", "Validate queries params passed into cryptocurrency APIs")
+        Component(walletAddressRepo, "WalletAddressRepository", "Repository", "Performs actions on crypto database")
+    }
+    ComponentDb(cryptoDB, "CryptoDatabase", "PostgreSQL Database", "Cryptocurrency related database")
+}
+Rel(mobile, api, "makes API calls", "JSON/HTTPS")
+Rel(authenController, authenService, "uses")
+Rel(authenController, authenValidator, "uses")
+Rel(authenService, walletAddressRepo, "uses")
+Rel(walletAddressRepo, cryptoDB, "reads/writes", "ORM: ObjectionJS")
+@enduml

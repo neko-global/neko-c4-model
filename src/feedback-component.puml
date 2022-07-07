@@ -1,0 +1,24 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Feedback component
+Person(customer, "Neko Wallet User", "Users using Neko Wallet application (mobile devices)")
+System_Boundary(system, "Neko Wallet System") {
+    Container(mobile, "Mobile App", "JavaScript: React Native", "Provides accessibility to application's major services to general users")
+    Rel_R(customer, mobile, "uses")
+    Boundary(api, "API Application", "Typescript: NodeJS, Express") {
+        Component(feedbackController, "FeedbackController", "Controller", "Receives queries to retrieve feedback information")
+        Component(feedbackService, "FeedbackService", "Service", "Receives queries' params, manipulate data retrieved from DB")
+        Component(feedbackValidator, "FeedbackValidator", "Validator", "Validate queries params passed into feedback APIs")
+        Component(feedbackRepo, "FeedbackRepository", "Repository", "Performs actions on crypto database")
+        Component(authenMiddleware, "AuthenticationMiddleware", "Middleware", "Validate access token passed along with requests to feedback controller")
+    }
+    ComponentDb(cryptoDB, "CryptoDatabase", "PostgreSQL Database", "Cryptocurrency related database")
+}
+Rel(mobile, api, "makes API calls", "JSON/HTTPS")
+Rel(feedbackController, feedbackService, "uses")
+Rel(feedbackController, feedbackValidator, "uses")
+Rel_L(feedbackController, authenMiddleware, "uses")
+Rel(feedbackService, feedbackRepo, "uses")
+Rel(feedbackRepo, cryptoDB, "reads/writes", "ORM: ObjectionJS")
+@enduml

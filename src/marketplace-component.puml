@@ -1,0 +1,22 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Marketplace component
+Person(customer, "Neko Wallet User", "Users using Neko Wallet application (mobile devices)")
+System_Boundary(system, "Neko Wallet System") {
+    Container(mobile, "Mobile App", "JavaScript: React Native", "Provides accessibility to application's major services to general users")
+    Rel_R(customer, mobile, "uses")
+    Boundary(api, "API Application", "Typescript: NodeJS, Express") {
+        Component(MarketplaceController, "MarketplaceController", "Controller", "Receives GET queries to retrieve market and cryptocurrency information")
+        Component(marketplaceAdapter, "MarketplaceAdapter", "Adapter", "Receives queries' params, manipulate data retrieved from marketplace APIs")
+        Component(marketplaceValidator, "MarketplaceValidator", "Validator", "Validate queries params passed into cryptocurrency APIs")
+        Component(marketplaceApi, "MarketplaceAPI", "API", "Queries marketplace's APIs")
+    }
+}
+System_Ext(marketplace, "Marketplace", "Marketplaces that have partnership with NekoWallet: MagicEden,...")
+Rel(mobile, api, "makes API calls", "JSON/HTTPS")
+Rel_R(MarketplaceController, marketplaceAdapter, "uses")
+Rel_D(MarketplaceController, marketplaceValidator, "uses")
+Rel_R(marketplaceAdapter, marketplaceApi, "uses")
+Rel_R(marketplaceApi, marketplace, "makes API calls")
+@enduml

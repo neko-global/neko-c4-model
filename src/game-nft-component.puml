@@ -1,0 +1,37 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Game NFT component
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Authentication component
+Person(customer, "Neko Wallet User", "Users using Neko Wallet application (mobile devices)")
+
+System_Ext(blockchain, "Blockchain", "Blockchain platforms such as SOL, BSC, ETH,...")
+System_Boundary(system, "Neko Wallet System") {
+    Container(mobile, "Mobile App", "JavaScript: React Native", "Provides accessibility to application's major services to general users")
+    Rel_L(customer, mobile, "uses")
+    Container(library, "Blockchain Library", "TypeScript", "provides functionality and communicates with Blockchain platforms")
+    Boundary(api, "API Application", "Typescript: NodeJS, Express") {
+        Component(gameController, "GameController", "Controller", "Receives GET queries to retrieve games and nfts information")
+        Component(gameService, "GameService", "Service", "Receives queries' params, manipulate data retrieved from DB")
+        Component(gameValidator, "GameValidator", "Validator", "Validate queries params passed into game APIs")
+        Component(gameRepo, "GameRepository", "Repository", "Performs actions on crypto database")
+        Component(gameNftRepo, "GameNFTRepository", "Repository", "Performs actions on crypto database")
+        Component(authenMiddleware, "AuthenticationMiddleware", "Middleware", "Validate access token passed along with requests to game controller")
+    }
+    ComponentDb(cryptoDB, "CryptoDatabase", "PostgreSQL Database", "Cryptocurrency related database")
+}
+Rel(mobile, api, "makes API calls", "JSON/HTTPS")
+Rel(mobile, library, "makes API calls", "JSON/HTTPS")
+Rel_R(gameController, gameService, "uses")
+Rel_D(gameController, gameValidator, "uses")
+Rel_R(gameService, gameRepo, "uses")
+Rel_D(gameService, gameNftRepo, "uses")
+Rel_D(gameController, authenMiddleware, "uses")
+Rel(gameNftRepo, cryptoDB, "reads/writes", "ORM: ObjectionJS")
+Rel(gameRepo, cryptoDB, "reads/writes", "ORM: ObjectionJS")
+Rel_L(library, blockchain, "retrieves and executes", "rpc")
+
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Notification component
+Person(customer, "Neko Wallet User", "Users using Neko Wallet application (mobile devices)")
+System_Boundary(system, "Neko Wallet System") {
+    Container(mobile, "Mobile App", "JavaScript: React Native", "Provides accessibility to application's major services to general users")
+    Rel_R(customer, mobile, "uses")
+    Boundary(api, "API Application", "Typescript: NodeJS, Express") {
+        Component(notificationController, "NotificationController", "Controller", "Receives queries to retrieve notifications and its statuses information")
+        Component(playerOnesignalController, "PlayerOnesignalController", "Controller", "Receives queries to retrieve onesignal players along with wallet ids information")
+        Component(notificationService, "NotificationService", "Service", "Receives queries' params, manipulate data retrieved from DB")
+        Component(playerOnesignalService, "PlayerOnesignalService", "Service", "Receives queries' params, manipulate data retrieved from DB")
+        Component(notificationValidator, "NotificationValidator", "Validator", "Validate queries params passed into notification APIs")
+        Component(playerOnesignalValidator, "PlayerOnesignalValidator", "Validator", "Validate queries params passed into player onesignal APIs")
+        Component(notificationRepo, "NotificationRepository", "Repository", "Retrieves notification information from cryptocurrency database")
+        Component(onesignalPlayerRepo, "OnesignalPlayerRepository", "Repository", "Retrieves onesignal player information from cryptocurrency database")
+        Component(playerWalletRepo, "PlayerWalletRepository", "Repository", "Retrieves player wallet information from cryptocurrency database")
+    }
+    ComponentDb(cryptoDB, "CryptoDatabase", "PostgreSQL Database", "Cryptocurrency related database")
+}
+Lay_U(notificationController, playerOnesignalController)
+Lay_U(notificationService, playerOnesignalService)
+Lay_D(notificationRepo, onesignalPlayerRepo)
+Rel(mobile, api, "makes API calls", "JSON/HTTPS")
+Rel_R(playerOnesignalController, playerOnesignalService, "uses")
+Rel_R(notificationController, notificationService, "uses")
+Rel_U(playerOnesignalController, playerOnesignalValidator, "uses")
+Rel_D(notificationController, notificationValidator, "uses")
+Rel_R(notificationService, notificationRepo, "uses")
+Rel_R(playerOnesignalService, onesignalPlayerRepo, "uses")
+Rel_R(playerOnesignalService, playerWalletRepo, "uses")
+Rel_R(onesignalPlayerRepo, cryptoDB, "reads/writes", "ORM: ObjectionJS")
+Rel_R(notificationRepo, cryptoDB, "reads/writes", "ORM: ObjectionJS")
+Rel_R(playerWalletRepo, cryptoDB, "reads/writes", "ORM: ObjectionJS")
+@enduml

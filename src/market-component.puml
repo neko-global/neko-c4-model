@@ -1,0 +1,36 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Marker component
+Person(customer, "Neko Wallet User", "Users using Neko Wallet application (mobile devices)")
+System_Boundary(system, "Neko Wallet System") {
+    Container(mobile, "Mobile App", "JavaScript: React Native", "Provides accessibility to application's major services to general users")
+    Rel_R(customer, mobile, "uses")
+    Boundary(api, "API Application", "Typescript: NodeJS, Express") {
+        Component(cryptoController, "CryptocurrencyController", "Controller", "Receives GET queries to retrieve market and cryptocurrency information")
+        Component(histController, "HistoricalPriceController", "Controller", "Receives GET queries to retrieve the latest price information")
+        Component(cryptoService, "CryptocurrencyService", "Service", "Receives queries' params, manipulate data retrieved from DB")
+        Component(histService, "HistoricalPriceService", "Service", "Receives queries' params, manipulate data retrieved from DB")
+        Component(cryptoValidator, "CryptocurrencyValidator", "Validator", "Validate queries params passed into cryptocurrency APIs")
+        Component(histValidator, "HistoricalPriceValidator", "Validator", "Validate queries params passed into historical price APIs")
+        Component(cryptoRepo, "CryptocurrencyRepository", "Repository", "Retrieves cryptocurrencies' data from cryptocurrency database")
+        Component(histRepo, "HistoricalPriceRepository", "Repository", "Retrieves price information from price database")
+    }
+    ComponentDb(cryptoDB, "CryptoDatabase", "PostgreSQL Database", "Cryptocurrency related database")
+    ComponentDb(histDB, "HistDatabase", "PostgreSQL Database", "Price related database")
+}
+Lay_U(cryptoController, histController)
+Lay_U(cryptoService, histService)
+Lay_D(cryptoRepo, histRepo)
+Rel(mobile, api, "makes API calls", "JSON/HTTPS")
+Rel_R(histController, histService, "uses")
+Rel_R(cryptoController, cryptoService, "uses")
+Rel_U(histController, histValidator, "uses")
+Rel_D(cryptoController, cryptoValidator, "uses")
+Rel_R(cryptoService, cryptoRepo, "uses")
+Rel_R(cryptoService, histRepo, "uses")
+Rel_R(histService, cryptoRepo, "uses")
+Rel_R(histService, histRepo, "uses")
+Rel_D(histRepo, histDB, "reads/writes", "ORM: ObjectionJS")
+Rel_D(cryptoRepo, cryptoDB, "reads/writes", "ORM: ObjectionJS")
+@enduml

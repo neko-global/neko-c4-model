@@ -1,0 +1,26 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Price Listener component
+
+System_Ext(cmc, "CoinMarketCap", "Market cap and price tracking platform for cryptocurrencies")
+System_Boundary(system, "Neko Wallet System") {
+    ComponentDb(cryptoDB, "CryptoDatabase", "PostgreSQL Database", "Cryptocurrency related database")
+    ComponentDb(histDB, "HistoricalPriceDatabase", "PostgreSQL Database", "Historical price related database")
+    Component(jobListener, "JobListener", "Job")
+    Component(cryptoDBRepo, "CryptoDBRepository", "Retrieves information from cryptocurrency database")
+    Component(histDBRepo, "HistoricalPriceDBRepository", "Retrieves information from historical price database")
+    Container(library, "Blockchain Library", "TypeScript", "provides functionality and communicates with Blockchain platforms")
+    SystemDb_Ext(redis, "Redis Store", "Message queue service")
+}
+System_Ext(blockchain, "Blockchain", "Blockchain platforms such as SOL, BSC, ETH,...")
+Rel(library, blockchain, "retrieves and executes", "rpc")
+Rel_U(jobListener, cmc, "retrieves", "socket")
+Rel(jobListener, library, "calls functions")
+Rel(jobListener, cryptoDBRepo, "uses")
+Rel(jobListener, histDBRepo, "uses")
+Rel(cryptoDBRepo, cryptoDB, "sends messages", "API")
+Rel(histDBRepo, histDB, "sends messages", "API")
+Rel(jobListener, redis, "stores price in 1 hour period")
+Rel(jobListener, redis, "retrieves data")
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for Scheduler component
+Person(customer, "Neko Wallet User", "Users using Neko Wallet application (mobile devices)")
+System_Boundary(system, "Neko Wallet System") {
+    ComponentDb(cryptoDB, "CryptoDatabase", "PostgreSQL Database", "Cryptocurrency related database")
+    ComponentDb(histDB, "HistoricalPriceDatabase", "PostgreSQL Database", "Historical price related database")
+    Component(jobAdapter, "JobAdapters", "Adapter")
+    Component(jobApi, "JobAPIs", "API")
+    Component(job, "JobScheduler", "Scheduler", "Schedules job to run at certain time everyday")
+    Component(cryptoDBRepo, "CryptoDBRepository", "Retrieves information from cryptocurrency database")
+    Component(histDBRepo, "HistoricalPriceDBRepository", "Retrieves information from historical price database")
+    Container(library, "Blockchain Library", "TypeScript", "provides functionality and communicates with Blockchain platforms")
+    SystemDb_Ext(s3, "S3", "S3 services for storing images and sending emails")
+}
+System_Ext(cmc, "CoinMarketCap", "Market cap and price tracking platform for cryptocurrencies")
+System_Ext(blockchain, "Blockchain", "Blockchain platforms such as SOL, BSC, ETH,...")
+System_Ext(notification, "OneSignal", "Push notification service for web and mobile devices")
+Rel_R(jobAdapter, cryptoDBRepo, "uses")
+Rel_L(jobAdapter, histDBRepo, "uses")
+Rel(jobAdapter, jobApi, "uses")
+Rel(jobAdapter, library, "calls functions")
+Rel(job, jobAdapter, "calls functions")
+Rel(jobAdapter, notification, "reads/writes", "ORM: ObjectionJS")
+Rel(cryptoDBRepo, cryptoDB, "sends messages", "API")
+Rel(histDBRepo, histDB, "sends messages", "API")
+Rel(library, blockchain, "retrieves and executes", "rpc")
+Rel(notification, customer, "notifies")
+Rel(jobAdapter, s3, "uploads images")
+Rel_D(jobApi, cmc, "makes API calls to", "api")
+@enduml
